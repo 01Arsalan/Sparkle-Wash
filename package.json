@@ -2,25 +2,28 @@
   "name": "sparklewash-server",
   "version": "1.0.0",
   "description": "Door-to-door car wash booking server with OTP verification",
-  "main": "index.js",
   "type": "module",
   "scripts": {
-    "start": "node index.js",
-    "dev": "nodemon index.js"
+    "local-dev": "vercel dev",
+    "build": "echo \"no build step\""
   },
-  "keywords": ["express", "otp", "car wash", "booking"],
-  "author": "Your Name",
+  "keywords": [
+    "express",
+    "otp",
+    "car wash",
+    "booking",
+    "serverless"
+  ],
+  "author": "Arsalan",
   "license": "ISC",
   "dependencies": {
+    "body-parser": "^2.2.0",
     "cors": "^2.8.5",
     "dotenv": "^17.2.2",
     "express": "^5.1.0",
     "fs-extra": "^11.3.2",
     "googleapis": "^160.0.0",
-    "helmet": "^8.1.0",
-    "jsonwebtoken": "^9.0.2",
-    "rate-limiter-flexible": "^8.0.1",
-    "twilio": "^5.10.1"
+    "serverless-http": "^4.0.0"
   },
   "devDependencies": {
     "nodemon": "^3.1.10"
