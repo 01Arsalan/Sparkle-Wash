@@ -19,9 +19,13 @@ const PUBLIC_DIR = path.join(__dirname, 'public');
 
 // Middlewares
 app.use(cors({
-  origin: 'https://sparkle-wash.vercel.app', // your frontend domain
-  methods: ['GET', 'POST']
+  origin: 'https://sparkle-wash.vercel.app', // frontend domain
+  methods: ['GET','POST','PUT','DELETE','OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
 }));
+
+// Optional: Handle preflight OPTIONS requests
+app.options('*', cors());
 
 app.use(bodyParser.json());
 
