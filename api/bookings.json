@@ -1,0 +1,94 @@
+[
+  {
+    "name": "Arsalan",
+    "phone": "7006443736",
+    "address": "New coloney, Bijbehara, Anantnag",
+    "carNumber": "Jk03P-3385",
+    "date": "2025-09-27",
+    "time": "18:08",
+    "washType": "Full Interior",
+    "paymentMethod": "Cash",
+    "id": 1758966141006,
+    "createdAt": "2025-09-27T09:42:21.006Z"
+  },
+  {
+    "name": "Arsalan",
+    "phone": "7006443736",
+    "address": "New coloney, Bijbehara, Anantnag",
+    "carNumber": "Jk03P-3385",
+    "date": "2025-09-28",
+    "time": "18:08",
+    "washType": "Full Interior",
+    "paymentMethod": "Cash",
+    "id": 1758966372537,
+    "createdAt": "2025-09-27T09:46:12.537Z"
+  },
+  {
+    "name": "Arsalan",
+    "phone": "7006443736",
+    "address": "New coloney, Bijbehara, Anantnag",
+    "carNumber": "Jk03P-3386",
+    "date": "2025-09-28",
+    "time": "18:08",
+    "washType": "Full Interior",
+    "paymentMethod": "Cash",
+    "id": 1758966407325,
+    "createdAt": "2025-09-27T09:46:47.325Z"
+  },
+  {
+    "id": 1758968111307,
+    "name": "Arsalan",
+    "phone": "7006443736",
+    "carNumber": "Jk03P-3386",
+    "date": "2025-09-30",
+    "time": "15:47",
+    "washType": "Premium Wash",
+    "paymentMethod": "Cash",
+    "createdAt": "2025-09-27T10:15:11.307Z"
+  },
+  {
+    "id": 1758968413025,
+    "name": "Arsalan",
+    "phone": "7006443736",
+    "carNumber": "Jk03P-3386",
+    "date": "2025-10-02",
+    "time": "18:50",
+    "washType": "Premium Wash",
+    "paymentMethod": "Cash",
+    "createdAt": "2025-09-27T10:20:13.025Z"
+  },
+  {
+    "id": 1758968559450,
+    "name": "Arsalan",
+    "phone": "7006443736",
+    "carNumber": "Jk03P-3386",
+    "date": "2025-09-27",
+    "time": "18:52",
+    "washType": "Exterior Wash",
+    "paymentMethod": "Cash",
+    "createdAt": "2025-09-27T10:22:39.450Z"
+  },
+  {
+    "id": 1758968625478,
+    "name": "Arsalan",
+    "phone": "7006443736",
+    "carNumber": "Jk03P-3386",
+    "date": "2025-10-10",
+    "time": "15:56",
+    "washType": "Exterior Wash",
+    "paymentMethod": "Cash",
+    "createdAt": "2025-09-27T10:23:45.478Z"
+  },
+  {
+    "id": 1758970535206,
+    "name": "Arsalan",
+    "phone": "7006443736",
+    "carNumber": "JK03P-3386",
+    "date": "2025-10-04",
+    "time": "22:25",
+    "washType": "Full Interior",
+    "paymentMethod": "Cash",
+    "address": "New coloney, Bijbehara, Anantnag",
+    "createdAt": "2025-09-27T10:55:35.206Z"
+  }
+]

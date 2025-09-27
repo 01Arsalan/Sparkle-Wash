@@ -1267,6 +1267,9 @@
         const washTypeSelect = document.getElementById('washType');
         const dateInput = document.getElementById('date');
 
+        // restore token across reloads in dev so booking includes it
+        window.__otpToken = window.__otpToken || localStorage.getItem('otpToken') || null;
+
         // Header scroll effect
         window.addEventListener('scroll', () => {
             if (window.scrollY > 100) {
@@ -1337,18 +1340,20 @@
             requestOtpBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sending...';
 
             try {
-                const res = await fetch('https://sparkle-wash-server.vercel.app/otp/request', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ phone })
-                });
-                const data = await res.json();
+                const res = await fetch('/api/otp', {
+                     method: 'POST',
+                     headers: { 'Content-Type': 'application/json' },
+                     body: JSON.stringify({ phone })
+                 });
+                 const data = await res.json();
                 
                 if (data.success) {
+                    // Save token for the booking call (in-memory only)
+                    window.__otpToken = data.token;
+                    // persist token across page reloads (dev convenience)
+                    try { localStorage.setItem('otpToken', data.token); } catch (e) { /* ignore */ }
                     otpError.innerHTML = `<i class="fas fa-check-circle" style="color: var(--success);"></i> OTP sent successfully! (Dev: ${data.otp})`;
-                    otpError.style.color = 'var(--success)';
-                    // Auto-fill OTP for development
-                    otpInput.value = data.otp;
+                    otpInput.value = data.otp; // dev only
                     otpInput.focus();
                 } else {
                     otpError.innerHTML = `<i class="fas fa-exclamation-circle"></i> ${data.message || "Failed to send OTP"}`;
@@ -1364,64 +1369,74 @@
 
         // Form submission
         bookingForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            
-            const booking = {
-                name: document.getElementById('name').value.trim(),
-                phone: otpPhoneInput.value.trim(),
-                address: document.getElementById('address').value.trim(),
-                otp: otpInput.value.trim(),
-                carNumber: document.getElementById('carNumber').value.trim(),
-                date: document.getElementById('date').value,
-                time: document.getElementById('time').value,
-                washType: document.getElementById('washType').value,
-                paymentMethod: document.getElementById('paymentMethod').value
-            };
+             e.preventDefault();
+             
+             const booking = {
+                 name: document.getElementById('name').value.trim(),
+                 phone: otpPhoneInput.value.trim(),
+                 address: document.getElementById('address').value.trim(),
+                 otp: otpInput.value.trim(),
+                 carNumber: document.getElementById('carNumber').value.trim(),
+                 date: document.getElementById('date').value,
+                 time: document.getElementById('time').value,
+                 washType: document.getElementById('washType').value,
+                 paymentMethod: document.getElementById('paymentMethod').value,
+                 // attach token (try in-memory first, then localStorage)
+                 token: window.__otpToken || localStorage.getItem('otpToken') || null
+             };
+ 
+             // Validation
+             if (!booking.name || !booking.phone || !booking.address || !booking.carNumber || 
+                 !booking.date || !booking.time || !booking.washType || !booking.paymentMethod) {
+                 alert("Please fill in all required fields!");
+                 return;
+             }
 
-            // Validation
-            if (!booking.name || !booking.phone || !booking.address || !booking.carNumber || 
-                !booking.date || !booking.time || !booking.washType || !booking.paymentMethod) {
-                alert("Please fill in all required fields!");
-                return;
-            }
+             if (!booking.otp) {
+                 alert("Please enter the OTP to verify your phone number!");
+                 return;
+             }
 
-            if (!booking.otp) {
-                alert("Please enter the OTP to verify your phone number!");
-                return;
-            }
+          // Ensure user actually requested OTP (token present)
+          if (!booking.token) {
+              otpError.innerHTML = '<i class="fas fa-exclamation-circle"></i> Please request OTP first (click Send OTP).';
+              return;
+          }
+ 
+             submitBookingBtn.disabled = true;
+             submitBookingBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
 
-            submitBookingBtn.disabled = true;
-            submitBookingBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
-
-            try {
-                const res = await fetch('https://sparkle-wash-server.vercel.app/book', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(booking)
-                });
-                const data = await res.json();
+             try {
+                 const res = await fetch('/api/book', {
+                     method: 'POST',
+                     headers: { 'Content-Type': 'application/json' },
+                     body: JSON.stringify(booking)
+                 });
+                 const data = await res.json();
                 
-                if (data.success) {
-                    successMessage.style.display = 'block';
-                    bookingForm.reset();
-                    otpInput.value = "";
-                    otpError.textContent = "";
-                    
-                    // Auto close modal after success
-                    setTimeout(() => {
-                        closeModal();
-                        bookingForm.reset();
-                    }, 3000);
-                } else {
-                    alert(data.message || 'Booking failed. Please try again.');
-                }
-            } catch (err) {
-                console.error(err);
-                alert("Failed to submit booking. Please check your connection and try again.");
-            } finally {
-                submitBookingBtn.disabled = false;
-                submitBookingBtn.innerHTML = '<i class="fas fa-check-circle"></i> Confirm Booking';
-            }
+                 if (data.success) {
+                     successMessage.style.display = 'block';
+                     bookingForm.reset();
+                     otpInput.value = "";
+                     otpError.textContent = "";
+                  // clear persisted token on success
+                  try { localStorage.removeItem('otpToken'); } catch (e) {}
+                     
+                     // Auto close modal after success
+                     setTimeout(() => {
+                         closeModal();
+                         bookingForm.reset();
+                     }, 3000);
+                 } else {
+                     alert(data.message || 'Booking failed. Please try again.');
+                 }
+             } catch (err) {
+                 console.error(err);
+                 alert("Failed to submit booking. Please check your connection and try again.");
+             } finally {
+                 submitBookingBtn.disabled = false;
+                 submitBookingBtn.innerHTML = '<i class="fas fa-check-circle"></i> Confirm Booking';
+             }
         });
 
         // Smooth scrolling for navigation links
