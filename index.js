@@ -32,7 +32,7 @@ app.get('/', (req, res) => {
 const API_BASE = 'https://sparkle-wash-server.vercel.app';
 // Load existing bookings (local backup)
 let bookings = [];
-const BOOKING_FILE = `${API_BASE}/bookings.json`;
+const BOOKING_FILE = `/bookings.json`;
 if (fs.existsSync(BOOKING_FILE)) {
   bookings = fs.readJSONSync(BOOKING_FILE);
 }
@@ -63,7 +63,7 @@ function verifyOtp(phone, otp) {
 // ------------------- ROUTES -------------------
 
 // Request OTP
-app.post(`${API_BASE}/otp/request`, (req, res) => {
+app.post(`/otp/request`, (req, res) => {
   const { phone } = req.body;
   if (!phone) return res.status(400).json({ success: false, message: 'Phone number is required' });
 
@@ -77,7 +77,7 @@ app.post(`${API_BASE}/otp/request`, (req, res) => {
 });
 
 // Book endpoint with OTP verification
-app.post(`${API_BASE}/book`, async (req, res) => {
+app.post(`/book`, async (req, res) => {
   const { phone, otp, carNumber, date, time, name, washType, paymentMethod, address } = req.body;
 
   console.log('OTP store:', otpStore.get(phone)); // debug
@@ -124,7 +124,7 @@ app.post(`${API_BASE}/book`, async (req, res) => {
 });
 
 // Get all bookings
-app.get(`${API_BASE}/bookings`, (req, res) => {
+app.get(`/bookings`, (req, res) => {
   res.json({ success: true, bookings });
 });
 
