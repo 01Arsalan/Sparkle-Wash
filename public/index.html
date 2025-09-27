@@ -1337,7 +1337,7 @@
             requestOtpBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sending...';
 
             try {
-                const res = await fetch('http://localhost:3000/otp/request', {
+                const res = await fetch('https://sparkle-wash-server.vercel.app/otp/request', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ phone })
