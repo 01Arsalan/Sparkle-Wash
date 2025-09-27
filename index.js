@@ -18,7 +18,11 @@ const __dirname = path.dirname(__filename);
 const PUBLIC_DIR = path.join(__dirname, 'public');
 
 // Middlewares
-app.use(cors());
+app.use(cors({
+  origin: 'https://sparkle-wash.vercel.app', // your frontend domain
+  methods: ['GET', 'POST']
+}));
+
 app.use(bodyParser.json());
 
 // Serve static files from public folder
