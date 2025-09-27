@@ -1394,7 +1394,7 @@
             submitBookingBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
 
             try {
-                const res = await fetch('http://localhost:3000/book', {
+                const res = await fetch('https://sparkle-wash-server.vercel.app/book', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(booking)
