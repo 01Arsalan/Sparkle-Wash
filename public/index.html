@@ -829,8 +829,13 @@
             }
 
             .modal-content {
-                margin: 1rem;
+                margin: 0rem;
                 max-height: calc(100vh - 2rem);
+                overflow: auto;
+                scrollbar-width: none;
+            }
+            .modal.active{
+                padding: 1rem .5rem;
             }
 
             .container {
