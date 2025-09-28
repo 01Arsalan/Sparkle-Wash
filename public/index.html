@@ -1340,7 +1340,7 @@
             requestOtpBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sending...';
 
             try {
-                const res = await fetch('/api/otp.js', {
+                const res = await fetch('/api/otp', {
                      method: 'POST',
                      headers: { 'Content-Type': 'application/json' },
                      body: JSON.stringify({ phone })
@@ -1407,7 +1407,7 @@
              submitBookingBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
 
              try {
-                 const res = await fetch('/api/book.js', {
+                 const res = await fetch('/api/book', {
                      method: 'POST',
                      headers: { 'Content-Type': 'application/json' },
                      body: JSON.stringify(booking)
