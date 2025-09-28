@@ -829,8 +829,10 @@
             }
 
             .modal-content {
-                margin: 1rem;
+                margin: 0;
                 max-height: calc(100vh - 2rem);
+                overflow: auto;
+                scrollbar-width: none;
             }
 
             .container {
@@ -859,6 +861,9 @@
             .service-header,
             .service-body {
                 padding: 1.5rem;
+            }
+            .modal.active {
+                padding: 1rem .5rem;
             }
         }
 
