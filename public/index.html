@@ -1,10 +1,82 @@
-<!DOCTYPE html>
+Type !== 'Walk-in' ? pickupAddress : '',
+                 deliveryAddress: serviceType !== 'Walk-in' ? (deliveryAddress || pickupAddress) : '',
+                 otp: otpInput.value.trim(),
+                 carNumber: document.getElementById('carNumber').value.trim(),
+                 date: document.getElementById('date').value,
+                 time: document.getElementById('time').value,
+                 washType: document.getElementById('washType').value,
+                 paymentMethod: document.getElementById('paymentMethod').value,
+                 // attach token (try in-memory first, then localStorage)
+                 token: window.__otpToken || localStorage.getItem('otpToken') || null
+             };
+ 
+             // Validation
+             if (!booking.name || !booking.phone || !booking.carNumber || 
+                 !booking.date || !booking.time || !booking.washType || !booking.paymentMethod || !booking.serviceType) {
+                 alert("Please fill in all required fields!");
+                 return;
+             }
+
+             // Additional validation for pickup/delivery services
+             if (serviceType !== 'Walk-in' && !booking.pickupAddress) {
+                 alert("Please enter pickup address for pickup/delivery service!");
+                 return;
+             }
+
+             if (!booking.otp) {
+                 alert("Please enter the OTP to verify your phone number!");
+                 return;
+             }
+
+          // Ensure user actually requested OTP (token present)
+          if (!booking.token) {
+              otpError.innerHTML = '<i class="fas fa-exclamation-circle"></i> Please request OTP first (click Send OTP).';
+              return;
+          }
+ 
+             submitBookingBtn.disabled = true;
+             submitBookingBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
+
+             try {
+                 const res = await fetch('/api/book.js', {
+                     method: 'POST',
+                     headers: { 'Content-Type': 'application/json' },
+                     body: JSON.stringify(booking)
+                 });
+                 const data = await res.json();
+                
+                 if (data.success) {
+                     successMessage.style.display = 'block';
+                     bookingForm.reset();
+                     otpInput.value = "";
+                     otpError.textContent = "";
+                     serviceSummary.style.display = 'none';
+                     addressSection.style.display = 'none';
+                  // clear persisted token on success
+                  try { localStorage.removeItem('otpToken'); } catch (e) {}
+                     
+                     // Auto close modal after success
+                     setTimeout(() => {
+                         closeModal();
+                         bookingForm.reset();
+                     }, 3000);
+                 } else {
+                     alert(data.message || 'Booking failed. Please try again.');
+                 }
+             } catch (err) {
+                 console.error(err);
+                 alert("Failed to submit booking. Please check your connection and try again.");
+             } finally {
+                 submitBookingBtn.disabled = false;
+                 submitBookingBtn.innerHTML = '<i class="fas fa-check-circle"></i> Confirm Booking';
+             }
+        });<!DOCTYPE html>
 <html lang="en">
 
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>SparkleWash - Premium Pick-up & Delivery Car Wash Service</title>
+    <title>SparkleWash - Premium Car Wash Service | Walk-in, Pickup & Express Delivery</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <style>
         /* Modern CSS Variables */
@@ -917,10 +989,10 @@
             <div class="hero-content">
                 <div class="hero-badge">
                     <i class="fas fa-star"></i>
-                    Premium Pick-up & Delivery Car Wash Service
+                    Premium Car Wash Service - Walk-in, Pickup & Express Delivery
                 </div>
                 <h1>Your Car Deserves the <span style="text-shadow: 0 0 20px rgba(255,255,255,0.5);">Sparkle</span> Treatment</h1>
-                <p>Professional pick-up and delivery car wash service that brings convenience to your doorstep. We pick up your car, give it premium care at our facility, and deliver it back sparkling clean.</p>
+                <p>Professional car wash service with multiple convenient options. Visit our facility, schedule pickup & delivery, or get express 1-hour delivery service. Quality care, your way.</p>
                 <div class="hero-buttons">
                     <button class="btn btn-primary" id="openBookingModal">
                         <i class="fas fa-calendar-check"></i>
@@ -940,9 +1012,16 @@
         <div class="container">
             <div class="section-header">
                 <h2 class="section-title">Why Choose SparkleWash?</h2>
-                <p class="section-subtitle">We provide convenient pick-up and delivery service with professional facility-based care for unmatched quality and convenience.</p>
+                <p class="section-subtitle">We offer multiple service options to fit your lifestyle - visit us, or let us come to you. Professional facility-based care with unmatched convenience.</p>
             </div>
             <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-store"></i>
+                    </div>
+                    <h3 class="feature-title">Walk-in Service</h3>
+                    <p class="feature-description">Visit our modern facility anytime during business hours. Watch your car get the sparkle treatment or relax in our comfortable waiting area with complimentary refreshments.</p>
+                </div>
                 <div class="feature-card">
                     <div class="feature-icon">
                         <i class="fas fa-truck"></i>
@@ -952,17 +1031,17 @@
                 </div>
                 <div class="feature-card">
                     <div class="feature-icon">
-                        <i class="fas fa-building"></i>
+                        <i class="fas fa-rocket"></i>
                     </div>
-                    <h3 class="feature-title">Professional Facility</h3>
-                    <p class="feature-description">Your car is serviced at our state-of-the-art facility with professional equipment and controlled environment for superior results.</p>
+                    <h3 class="feature-title">Express 1-Hour Delivery</h3>
+                    <p class="feature-description">Need it fast? Our express service guarantees your car will be picked up, washed, and delivered back within just 1 hour! Perfect for busy schedules.</p>
                 </div>
                 <div class="feature-card">
                     <div class="feature-icon">
-                        <i class="fas fa-shield-alt"></i>
+                        <i class="fas fa-building"></i>
                     </div>
-                    <h3 class="feature-title">Eco-Friendly Products</h3>
-                    <p class="feature-description">We use biodegradable, eco-friendly cleaning products that are safe for your car and the environment.</p>
+                    <h3 class="feature-title">Professional Facility</h3>
+                    <p class="feature-description">Your car is serviced at our state-of-the-art facility with professional equipment and controlled environment for superior results every time.</p>
                 </div>
                 <div class="feature-card">
                     <div class="feature-icon">
@@ -973,17 +1052,10 @@
                 </div>
                 <div class="feature-card">
                     <div class="feature-icon">
-                        <i class="fas fa-mobile-alt"></i>
-                    </div>
-                    <h3 class="feature-title">Easy Booking & Tracking</h3>
-                    <p class="feature-description">Simple online booking system with real-time tracking. Know exactly when we'll pick up and deliver your car.</p>
-                </div>
-                <div class="feature-card">
-                    <div class="feature-icon">
                         <i class="fas fa-clock"></i>
                     </div>
-                    <h3 class="feature-title">Quick Turnaround</h3>
-                    <p class="feature-description">Most services completed within 2-4 hours. We respect your time and deliver your car back promptly.</p>
+                    <h3 class="feature-title">Flexible Timing</h3>
+                    <p class="feature-description">Choose what works for you - immediate walk-in service, scheduled pickup/delivery, or express 1-hour service. We adapt to your schedule.</p>
                 </div>
             </div>
         </div>
@@ -994,7 +1066,7 @@
         <div class="container">
             <div class="section-header">
                 <h2 class="section-title">Our Services</h2>
-                <p class="section-subtitle">Choose from our range of professional car wash packages. We'll pick up your car, service it at our facility, and deliver it back to you.</p>
+                <p class="section-subtitle">Choose from our range of professional car wash packages. Walk-in anytime, schedule pickup/delivery, or get express 1-hour service.</p>
             </div>
             <div class="services-grid">
                 <div class="service-card">
@@ -1009,8 +1081,8 @@
                             <li><i class="fas fa-check-circle"></i> Wheel & tire cleaning</li>
                             <li><i class="fas fa-check-circle"></i> Window cleaning</li>
                             <li><i class="fas fa-check-circle"></i> Quick dry & shine</li>
-                            <li><i class="fas fa-check-circle"></i> Free pickup & delivery</li>
-                            <li><i class="fas fa-check-circle"></i> 2-3 hour turnaround</li>
+                            <li><i class="fas fa-check-circle"></i> Walk-in or pickup service</li>
+                            <li><i class="fas fa-check-circle"></i> 30-45 min completion</li>
                         </ul>
                         <button class="service-button" onclick="openBookingModalWithService('Exterior Wash')">
                             <i class="fas fa-calendar-plus"></i>
@@ -1031,7 +1103,7 @@
                             <li><i class="fas fa-check-circle"></i> Seat & upholstery care</li>
                             <li><i class="fas fa-check-circle"></i> Floor mat cleaning</li>
                             <li><i class="fas fa-check-circle"></i> Air freshener</li>
-                            <li><i class="fas fa-check-circle"></i> Free pickup & delivery</li>
+                            <li><i class="fas fa-check-circle"></i> Walk-in or pickup service</li>
                         </ul>
                         <button class="service-button" onclick="openBookingModalWithService('Full Interior')">
                             <i class="fas fa-calendar-plus"></i>
@@ -1052,7 +1124,7 @@
                             <li><i class="fas fa-check-circle"></i> Wax application</li>
                             <li><i class="fas fa-check-circle"></i> Engine bay cleaning</li>
                             <li><i class="fas fa-check-circle"></i> Premium detailing</li>
-                            <li><i class="fas fa-check-circle"></i> Free pickup & delivery</li>
+                            <li><i class="fas fa-check-circle"></i> Walk-in or pickup service</li>
                         </ul>
                         <button class="service-button" onclick="openBookingModalWithService('Premium Wash')">
                             <i class="fas fa-crown"></i>
@@ -1093,7 +1165,7 @@
         <div class="container">
             <div class="cta-content">
                 <h2>Ready to Give Your Car the Sparkle Treatment?</h2>
-                <p>Join thousands of satisfied customers who trust SparkleWash for their car care needs. We'll pick up your car, give it professional care, and deliver it back sparkling clean.</p>
+                <p>Join thousands of satisfied customers who trust SparkleWash. Walk-in anytime, schedule convenient pickup/delivery, or get lightning-fast 1-hour express service.</p>
                 <button class="btn btn-primary" id="ctaBookingBtn" style="background: white; color: var(--primary);">
                     <i class="fas fa-rocket"></i>
                     Book Your Service Now
@@ -1108,7 +1180,7 @@
             <div class="footer-content">
                 <div class="footer-section">
                     <h3>SparkleWash</h3>
-                    <p>Your trusted partner for premium pickup and delivery car wash services. We bring the convenience to your doorstep and the quality to our facility.</p>
+                    <p>Your trusted partner for premium car wash services. Walk-in anytime, schedule pickup & delivery, or get express 1-hour service. Quality and convenience, your way.</p>
                     <div style="margin-top: 1rem;">
                         <i class="fas fa-star" style="color: #fbbf24;"></i>
                         <i class="fas fa-star" style="color: #fbbf24;"></i>
@@ -1157,7 +1229,7 @@
     <div class="modal" id="bookingModal">
         <div class="modal-content">
             <div class="modal-header">
-                <h2><i class="fas fa-calendar-check"></i> Book Your SparkleWash Pickup Service</h2>
+                <h2><i class="fas fa-calendar-check"></i> Book Your SparkleWash Service</h2>
                 <button class="close-modal" id="closeModal">&times;</button>
             </div>
             <div class="modal-body">
@@ -1178,32 +1250,50 @@
                     </div>
 
                     <div class="form-group">
-                        <label for="pickupAddress">
-                            <i class="fas fa-map-marker-alt"></i> Pickup Address *
+                        <label for="serviceType">
+                            <i class="fas fa-cogs"></i> Service Type *
                         </label>
-                        <input type="text" id="pickupAddress" required placeholder="Enter address where we should pick up your car" />
+                        <select id="serviceType" required>
+                            <option value="">Select service type</option>
+                            <option value="Walk-in">Walk-in Service (Visit our facility)</option>
+                            <option value="Pickup">Standard Pickup & Delivery (Free - 2-4 hours)</option>
+                            <option value="Express">Express 1-Hour Delivery (+₹150)</option>
+                        </select>
+                        <div style="font-size: 0.875rem; color: var(--gray-600); margin-top: 0.25rem;">
+                            <i class="fas fa-info-circle"></i> Choose how you'd like to get your car serviced
+                        </div>
                     </div>
 
-                    <div class="form-group">
-                        <label for="deliveryAddress">
-                            <i class="fas fa-location-arrow"></i> Delivery Address
-                        </label>
-                        <input type="text" id="deliveryAddress" placeholder="Leave blank if same as pickup address" />
-                        <div style="font-size: 0.875rem; color: var(--gray-600); margin-top: 0.25rem;">
-                            <i class="fas fa-info-circle"></i> If different from pickup address
+                    <!-- Address fields - will show/hide based on service type -->
+                    <div class="address-section" id="addressSection" style="display: none;">
+                        <div class="form-group">
+                            <label for="pickupAddress">
+                                <i class="fas fa-map-marker-alt"></i> Pickup Address *
+                            </label>
+                            <input type="text" id="pickupAddress" placeholder="Enter address where we should pick up your car" />
+                        </div>
+
+                        <div class="form-group">
+                            <label for="deliveryAddress">
+                                <i class="fas fa-location-arrow"></i> Delivery Address
+                            </label>
+                            <input type="text" id="deliveryAddress" placeholder="Leave blank if same as pickup address" />
+                            <div style="font-size: 0.875rem; color: var(--gray-600); margin-top: 0.25rem;">
+                                <i class="fas fa-info-circle"></i> If different from pickup address
+                            </div>
                         </div>
                     </div>
 
                     <div class="form-row">
                         <div class="form-group">
                             <label for="date">
-                                <i class="fas fa-calendar"></i> Pickup Date *
+                                <i class="fas fa-calendar"></i> Service Date *
                             </label>
                             <input type="date" id="date" required />
                         </div>
                         <div class="form-group">
                             <label for="time">
-                                <i class="fas fa-clock"></i> Preferred Pickup Time *
+                                <i class="fas fa-clock"></i> Preferred Time *
                             </label>
                             <input type="time" id="time" required />
                         </div>
@@ -1227,24 +1317,16 @@
                             </label>
                             <select id="paymentMethod" required>
                                 <option value="">Select payment method</option>
-                                <option value="Cash">Cash on Delivery</option>
+                                <option value="Cash">Cash Payment</option>
                                 <option value="Online">Online Payment</option>
                             </select>
                         </div>
                     </div>
 
-                    <div class="form-group">
-                        <label for="serviceType">
-                            <i class="fas fa-truck"></i> Service Type *
-                        </label>
-                        <select id="serviceType" required>
-                            <option value="">Select service type</option>
-                            <option value="Standard">Standard Pickup & Delivery (Free)</option>
-                            <option value="Express">Express Pickup & Delivery (+₹99 - Same day return)</option>
-                        </select>
-                        <div style="font-size: 0.875rem; color: var(--gray-600); margin-top: 0.25rem;">
-                            <i class="fas fa-info-circle"></i> Express service guarantees same-day pickup and delivery
-                        </div>
+                    <!-- Service Summary -->
+                    <div class="service-summary" id="serviceSummary" style="display: none; background: var(--gray-50); padding: 1rem; border-radius: var(--border-radius); margin: 1rem 0; border: 1px solid var(--gray-200);">
+                        <h4 style="margin-bottom: 0.5rem; color: var(--dark);"><i class="fas fa-receipt"></i> Service Summary</h4>
+                        <div id="summaryDetails" style="font-size: 0.9rem; color: var(--gray-600);"></div>
                     </div>
 
                     <!-- OTP Verification Section -->
@@ -1298,6 +1380,10 @@
         const otpError = document.getElementById('otpError');
         const washTypeSelect = document.getElementById('washType');
         const dateInput = document.getElementById('date');
+        const serviceTypeSelect = document.getElementById('serviceType');
+        const addressSection = document.getElementById('addressSection');
+        const serviceSummary = document.getElementById('serviceSummary');
+        const summaryDetails = document.getElementById('summaryDetails');
 
         // restore token across reloads in dev so booking includes it
         window.__otpToken = window.__otpToken || localStorage.getItem('otpToken') || null;
@@ -1397,80 +1483,6 @@
                 requestOtpBtn.disabled = false;
                 requestOtpBtn.innerHTML = '<i class="fas fa-paper-plane"></i> Send OTP';
             }
-        });
-
-        // Form submission
-        bookingForm.addEventListener('submit', async (e) => {
-             e.preventDefault();
-             
-             const booking = {
-                 name: document.getElementById('name').value.trim(),
-                 phone: otpPhoneInput.value.trim(),
-                 pickupAddress: document.getElementById('pickupAddress').value.trim(),
-                 deliveryAddress: document.getElementById('deliveryAddress').value.trim() || document.getElementById('pickupAddress').value.trim(),
-                 otp: otpInput.value.trim(),
-                 carNumber: document.getElementById('carNumber').value.trim(),
-                 date: document.getElementById('date').value,
-                 time: document.getElementById('time').value,
-                 washType: document.getElementById('washType').value,
-                 paymentMethod: document.getElementById('paymentMethod').value,
-                 serviceType: document.getElementById('serviceType').value,
-                 // attach token (try in-memory first, then localStorage)
-                 token: window.__otpToken || localStorage.getItem('otpToken') || null
-             };
- 
-             // Validation
-             if (!booking.name || !booking.phone || !booking.pickupAddress || !booking.carNumber || 
-                 !booking.date || !booking.time || !booking.washType || !booking.paymentMethod || !booking.serviceType) {
-                 alert("Please fill in all required fields!");
-                 return;
-             }
-
-             if (!booking.otp) {
-                 alert("Please enter the OTP to verify your phone number!");
-                 return;
-             }
-
-          // Ensure user actually requested OTP (token present)
-          if (!booking.token) {
-              otpError.innerHTML = '<i class="fas fa-exclamation-circle"></i> Please request OTP first (click Send OTP).';
-              return;
-          }
- 
-             submitBookingBtn.disabled = true;
-             submitBookingBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
-
-             try {
-                 const res = await fetch('/api/book.js', {
-                     method: 'POST',
-                     headers: { 'Content-Type': 'application/json' },
-                     body: JSON.stringify(booking)
-                 });
-                 const data = await res.json();
-                
-                 if (data.success) {
-                     successMessage.style.display = 'block';
-                     bookingForm.reset();
-                     otpInput.value = "";
-                     otpError.textContent = "";
-                  // clear persisted token on success
-                  try { localStorage.removeItem('otpToken'); } catch (e) {}
-                     
-                     // Auto close modal after success
-                     setTimeout(() => {
-                         closeModal();
-                         bookingForm.reset();
-                     }, 3000);
-                 } else {
-                     alert(data.message || 'Booking failed. Please try again.');
-                 }
-             } catch (err) {
-                 console.error(err);
-                 alert("Failed to submit booking. Please check your connection and try again.");
-             } finally {
-                 submitBookingBtn.disabled = false;
-                 submitBookingBtn.innerHTML = '<i class="fas fa-check-circle"></i> Confirm Booking';
-             }
         });
 
         // Smooth scrolling for navigation links
