@@ -7,13 +7,12 @@
   "routes": [
     { "handle": "filesystem" },
 
-    // explicit mapping for otp (guarantees /api/otp -> api/otp.js)
     { "src": "^/api/otp$", "dest": "/api/otp.js" },
+    
+    { "src": "^/api/book$", "dest": "/api/book.js" },
 
-    // general mapping for other api files (extensionless -> .js)
     { "src": "^/api/(.*)$", "dest": "/api/$1.js" },
 
-    // SPA fallback
     { "src": "/(.*)", "dest": "/public/index.html" }
   ]
 }
